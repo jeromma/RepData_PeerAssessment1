@@ -7,15 +7,28 @@ output:
 
 
 ## Loading and preprocessing the data
-
-
+```{R}
+data <- read.csv(unz("activity.zip", "activity.csv"))
+hours <- sprintf("%02d", data$interval %/% 100)
+minutes <- sprintf("%02d", data$interval %% 100)
+data$time <- strptime(paste(hours, minutes, sep=":"), format="%H:%M")
+head(data)
+tail(data)
+```
 
 ## What is mean total number of steps taken per day?
-
-
+```{R}
+totalStepsPerDay <- with(data, tapply(steps, date, sum))
+hist(totalStepsPerDay)
+mean(totalStepsPerDay, na.rm=TRUE)
+median(totalStepsPerDay, na.rm=TRUE)
+```
 
 ## What is the average daily activity pattern?
-
+```{R}
+meanStepsPerInterval <- with(data, tapply(steps, time, mean, na.rm=TRUE))
+#plot(names(meanStepsPerInterval), meanStepsPerInterval,  type="l")
+```
 
 
 ## Imputing missing values
