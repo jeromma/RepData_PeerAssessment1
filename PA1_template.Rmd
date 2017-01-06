@@ -9,11 +9,7 @@ output:
 ## Loading and preprocessing the data
 ```{R}
 data <- read.csv(unz("activity.zip", "activity.csv"))
-hours <- sprintf("%02d", data$interval %/% 100)
-minutes <- sprintf("%02d", data$interval %% 100)
-data$time <- strptime(paste(hours, minutes, sep=":"), format="%H:%M")
 head(data)
-tail(data)
 ```
 
 ## What is mean total number of steps taken per day?
@@ -26,13 +22,26 @@ median(totalStepsPerDay, na.rm=TRUE)
 
 ## What is the average daily activity pattern?
 ```{R}
-meanStepsPerInterval <- with(data, tapply(steps, time, mean, na.rm=TRUE))
-#plot(names(meanStepsPerInterval), meanStepsPerInterval,  type="l")
+meanStepsPerInterval <- with(data, tapply(steps, interval, mean, na.rm=TRUE))
+plot(meanStepsPerInterval, type="l", xaxt="n")
+hours <- sprintf("%02d", as.numeric(names(meanStepsPerInterval)) %/% 100)
+minutes <- sprintf("%02d", as.numeric(names(meanStepsPerInterval)) %% 100)
+times <- paste(hours, minutes, sep=":")
+ticks <- seq(1, to=277, by=48)
+axis(1, at=ticks, labels=times[ticks], cex.axis=.8)
+maxInterval <- which.max(meanStepsPerInterval)
+maxInterval
+times[maxInterval]
+meanStepsPerInterval[maxInterval]
 ```
 
 
 ## Imputing missing values
-
-
+```{R}
+sum(is.na(data$steps))
+newData <- data
+naFlag <- is.na(newData$steps)
+means <- rep(meanStepsPerInterval, length(newData$steps)/length(meanStepsPerInterval))
+newData$steps[naFlag] <- means[naFlag]
 
 ## Are there differences in activity patterns between weekdays and weekends?
